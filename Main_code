@@ -1,0 +1,77 @@
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+app.use(cors());
+
+const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+
+app.get('/weather/:city', async (req, res) => {
+    const city = req.params.city;
+    try {
+        const response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(5000, () => {
+    console.log('Server is running on port 5000');
+});
+OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function Weather() {
+    const [city, setCity] = useState('');
+    const [weather, setWeather] = useState(null);
+
+    const getWeather = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/weather/${city}`);
+            setWeather(response.data);
+        } catch (error) {
+            console.error('Error fetching the weather data', error);
+        }
+    };
+
+    return (
+        <div>
+            <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Enter city"
+            />
+            <button onClick={getWeather}>Get Weather</button>
+
+            {weather && (
+                <div>
+                    <h3>Weather in {weather.name}</h3>
+                    <p>Temperature: {weather.main.temp}°C</p>
+                    <p>Condition: {weather.weather[0].description}</p>
+                    <p>Humidity: {weather.main.humidity}%</p>
+                    <p>Wind Speed: {weather.wind.speed} m/s</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default Weather;
+import React from 'react';
+import Weather from './Weather';
+
+function App() {
+    return (
+        <div className="App">
+            <h1>Weather App</h1>
+            <Weather />
+        </div>
+    );
+}
+
+export default App;
